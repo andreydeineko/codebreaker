@@ -3,18 +3,28 @@ require 'spec_helper'
 module Codebreaker
 
   describe Game do
+    let(:output) { double('output').as_null_object }
+    let(:game)   { Game.new(output) }
+
     describe "#start" do
       it "sends a welcome message" do
-   		output = double('output')
-        game = Game.new(output)
-
-        output.sould_receive(:puts).with('Welcome to Codebreaker!')
-        game.start
+        output.should_receive(:puts).with("Welcome to Codebreaker! \nAt any point of the game you can request hint by typing 'hint' \nYou have 10 attempt, good luck!")
+        game.start('1234')
       end
 
+      it "prompts for the first guess" do
+        output.should_receive(:puts).with('Enter guess (4 numbers between 1 and 5): ' )
+        game.start('1234')
+      end
+    end
 
-	  it "prompts for the first guess"
-	end
+    describe "#guess" do
+      it "sends the mark to output" do
+        game.start('1234')
+        output.should_receive(:puts).with('++++')
+        game.guess('1234')
+      end
+    end
   end
 
 end
