@@ -4,10 +4,15 @@ module Codebreaker
 
   describe Game do
     let(:output) { double('output').as_null_object }
-    let(:game)   { Game.new(output) }
+    let(:input) { double('stdin').as_null_object }
+    let(:game)   { Game.new(output, input) }
+
+    before { game.stub(:loose).and_return(true) }
+    before { game.stub(:win).and_return(true) }
 
     describe "#secret_code" do
-      it "generates secret code in range between 1 and 5" do
+      it "generates secret code" do
+        input.stub(:gets) { rand(1000..9999).to_s }
         game.start
         game.instance_variable_get(:@secret).to_i.should be_a_kind_of(Fixnum)
         game.instance_variable_get(:@secret).to_s.length.should == 4
@@ -17,18 +22,19 @@ module Codebreaker
     describe "#start" do
       it "sends a welcome message" do
         output.should_receive(:puts).with("Welcome to Codebreaker! \nAt any point of the game you can request hint by typing 'hint' \nYou have 10 attempt, good luck!")
-        game.start('1234')
+        game.start
       end
 
       it "prompts for the first guess" do
-        output.should_receive(:puts).with('Enter guess (4 numbers between 1 and 5): ' )
-        game.start('1234')
+        output.should_receive(:puts).with('Enter guess: ' )
+        game.start
       end
     end
 
     describe "#guess" do
       it "sends the mark to output" do
-        game.start('1234')
+        game.start
+        game.instance_variable_set(:@secret, '1234')
         output.should_receive(:puts).with('++++')
         game.guess('1234')
       end
@@ -43,21 +49,21 @@ module Codebreaker
           marker.exact_match_count.should == 0
         end
       end
-      
+
       context "with 1 exact match" do
         it "returns 1" do
           marker = Marker.new('1234','1555')
           marker.exact_match_count.should == 1
         end
       end
-      
+
       context "with 1 number match" do
         it "returns 0" do
           marker = Marker.new('1234','2555')
           marker.exact_match_count.should == 0
         end
       end
-      
+
       context "with 1 exact match and 1 number match" do
         it "returns 1" do
           marker = Marker.new('1234','1525')
@@ -80,14 +86,14 @@ module Codebreaker
           marker.number_match_count.should == 1
         end
       end
-      
+
       context "with 1 exact match" do
         it "returns 0" do
           marker = Marker.new('1234','1555')
           marker.number_match_count.should == 0
         end
       end
-      
+
       context "with 1 exact match and 1 number match" do
         it "returns 1" do
           marker = Marker.new('1234','1525')
@@ -96,12 +102,12 @@ module Codebreaker
       end
 
       context "with 1 exact match duplicated in guess" do
-    it "returns 0" do
-      pending("refactor number_match_count")
-      marker = Marker.new('1234','1155')
-      marker.number_match_count.should == 0
-    end
-    end
+        it "returns 0" do
+          pending("refactor number_match_count")
+          marker = Marker.new('1234','1155')
+          marker.number_match_count.should == 0
+        end
+      end
     end
   end
 
