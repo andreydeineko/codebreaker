@@ -118,7 +118,7 @@ module Codebreaker
     def show_score
       @score.each_with_index do |score_entry, index|
         game_index = index + 1
-        puts "Game #{game_index}: #{score_entry.output}"
+        @output.puts "Game #{game_index}: #{score_entry.output}"
       end
     end
   end
